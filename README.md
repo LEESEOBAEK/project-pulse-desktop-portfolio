@@ -26,7 +26,7 @@ Windows용 Tauri 데스크톱 최적화 도우미의 공개 포트폴리오 버�
 권리는 원저작권자 및 관련 권리자에게 있습니다.
 
 <p align="center">
-  <img src="docs/showcase/usagi-sleep-capture.gif" width="520" alt="먼작귀 우사기 수면 화면 캡처" />
+  <img src="docs/showcase/usagi-sleep-capture.gif" width="460" alt="먼작귀 우사기 수면 화면 캡처" />
 </p>
 
 - 이 GIF는 전시·검토 목적의 캡처일 뿐, 캐릭터 애셋이나 사용 라이선스를 제공하지
