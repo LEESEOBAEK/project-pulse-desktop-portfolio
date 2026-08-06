@@ -25,7 +25,9 @@ Windows용 Tauri 데스크톱 최적화 도우미의 공개 포트폴리오 버�
 표시 캐릭터는 **먼작귀(ちいかわ)의 우사기(Usagi)**이며, 해당 캐릭터와 이미지의
 권리는 원저작권자 및 관련 권리자에게 있습니다.
 
-![먼작귀 우사기 수면 화면 캡처](docs/showcase/usagi-sleep-capture.gif)
+<p align="center">
+  <img src="docs/showcase/usagi-sleep-capture.gif" width="520" alt="먼작귀 우사기 수면 화면 캡처" />
+</p>
 
 - 이 GIF는 전시·검토 목적의 캡처일 뿐, 캐릭터 애셋이나 사용 라이선스를 제공하지
   않습니다.
