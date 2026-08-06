@@ -1,0 +1,85 @@
+{
+    "pack_id":  "placeholder-svg",
+    "version":  "1.0.0",
+    "canvas":  {
+                   "width":  200,
+                   "height":  200
+               },
+    "anchor":  "bottom-center",
+    "fallback_state":  "03_ready_idle",
+    "zzz_overlay":  true,
+    "states":  {
+                   "01_sleep":  {
+                                    "type":  "svg",
+                                    "src":  "01_sleep.svg"
+                                },
+                   "01_to_02_wake_transition":  {
+                                                    "type":  "svg",
+                                                    "src":  "01_to_02_wake_transition.svg"
+                                                },
+                   "02_wake_up":  {
+                                      "type":  "svg",
+                                      "src":  "02_wake_up.svg"
+                                  },
+                   "02_wake_to_02_02_transition":  {
+                                                       "type":  "svg",
+                                                       "src":  "02_wake_to_02_02_transition.svg"
+                                                   },
+                   "02_02_standing_awake":  {
+                                                "type":  "svg",
+                                                "src":  "02_02_standing_awake.svg"
+                                            },
+                   "03_ready_idle":  {
+                                         "type":  "svg",
+                                         "src":  "03_ready_idle.svg"
+                                     },
+                   "03_panel_open_jump_turn_left_spatial_clean":  {
+                                                                      "type":  "svg",
+                                                                      "src":  "03_panel_open_jump_turn_left_spatial_clean.svg"
+                                                                  },
+                   "03_to_04_pull_window_from_subspace":  {
+                                                              "type":  "svg",
+                                                              "src":  "03_to_04_pull_window_from_subspace.svg"
+                                                          },
+                   "04_to_05_throw_window_expand":  {
+                                                        "type":  "svg",
+                                                        "src":  "04_to_05_throw_window_expand.svg"
+                                                    },
+                   "04_awaiting_selection":  {
+                                                 "type":  "svg",
+                                                 "src":  "04_awaiting_selection.svg"
+                                             },
+                   "05_system_scan":  {
+                                          "type":  "svg",
+                                          "src":  "05_system_scan.svg"
+                                      },
+                   "06_temp_file_cleanup":  {
+                                                "type":  "svg",
+                                                "src":  "06_temp_file_cleanup.svg"
+                                            },
+                   "07_startup_management":  {
+                                                 "type":  "svg",
+                                                 "src":  "07_startup_management.svg"
+                                             },
+                   "08_process_inspection":  {
+                                                 "type":  "svg",
+                                                 "src":  "08_process_inspection.svg"
+                                             },
+                   "09_optimization_progress":  {
+                                                    "type":  "svg",
+                                                    "src":  "09_optimization_progress.svg"
+                                                },
+                   "10_warning":  {
+                                      "type":  "svg",
+                                      "src":  "10_warning.svg"
+                                  },
+                   "11_error_blocked":  {
+                                            "type":  "svg",
+                                            "src":  "11_error_blocked.svg"
+                                        },
+                   "12_success":  {
+                                      "type":  "svg",
+                                      "src":  "12_success.svg"
+                                  }
+               }
+}

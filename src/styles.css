@@ -1,0 +1,515 @@
+/* 투명 창: 문서 배경을 완전히 비운다 */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  font-family: "Segoe UI", sans-serif;
+}
+
+#stage {
+  --mascot-ground-line: 26px;
+  --panel-min-height: 300px;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+/* ── 패널 ──────────────────────────────────────────────────── */
+/* 캐릭터 왼쪽에 붙는 세로 카드. 창 폭 전체로 늘어나지 않는다. */
+#panel {
+  flex: 1 1 auto;
+  align-self: stretch;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 16px 0 var(--mascot-ground-line) 16px;
+  min-width: 0;
+  /* 캐릭터 캔버스의 투명 여백 위로 겹쳐 카드가 캐릭터에 붙어 보이게 한다 */
+  margin-right: -64px;
+  z-index: 1;
+}
+
+.panel-card {
+  width: 360px;
+  max-width: 100%;
+  min-height: min(var(--panel-min-height), calc(100% - 16px));
+  max-height: calc(100% - 16px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  background: rgba(248, 237, 215, 0.96);
+  color: #44382c;
+  border: 1px solid rgba(117, 86, 50, 0.2);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 28px rgba(75, 52, 30, 0.26);
+}
+
+/* 심야 점검실의 짧은 문구 묶음은 카드 중심보다 조금 아래에 둔다. */
+.panel-card.panel-idle {
+  padding-top: 64px;
+}
+
+/* 스크롤은 유지하되 패널 위에 드래그바가 보이지 않게 한다. */
+.panel-card,
+.candidates {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.panel-card::-webkit-scrollbar,
+.candidates::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+/* 카드는 위쪽으로 충분히 길게 유지하되 하단은 캐릭터 발끝의 공통 지면선에
+   고정한다. 접지 그림자로 같은 바닥 위에 놓인 듯한 깊이를 만든다. */
+.panel-card::after {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 6%;
+  bottom: -6px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(76, 52, 29, 0.14);
+  filter: blur(6px);
+  transform: skewX(-10deg);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* hidden 속성이 #panel의 display: flex에 지지 않도록 명시한다 */
+#panel[hidden] {
+  display: none;
+}
+
+/* 등장: 확대되는 창에서 이어받아 opacity 0 · scale 0.96에서 정착한다.
+   transform-origin은 창(캐릭터) 쪽. 확대 창 잔상(160ms)과 겹쳐 보인다. */
+#panel.panel-enter .panel-card {
+  transform-origin: right center;
+  animation: panel-in 0.16s ease-out;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 퇴장: 캐릭터 쪽으로 부드럽게 사라진 뒤에 창을 줄인다 */
+#panel.panel-exit .panel-card {
+  animation: panel-out 0.22s ease-in forwards;
+}
+
+@keyframes panel-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(24px) scale(0.97);
+  }
+}
+
+.panel-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.panel-subtitle {
+  margin: 12px 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #725d47;
+}
+
+.panel-note {
+  margin: 6px 0;
+  font-size: 12px;
+  color: #725d47;
+  line-height: 1.5;
+}
+
+.panel-error {
+  margin: 6px 0;
+  font-size: 12px;
+  color: #a64b42;
+  white-space: pre-wrap;
+}
+
+.summary {
+  margin: 8px 0;
+  padding-left: 0;
+  list-style-position: inside;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.candidate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  background: rgba(117, 86, 50, 0.09);
+  border-radius: 8px;
+  padding: 5px 8px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.candidate-path {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl; /* 긴 경로의 끝부분을 보여준다 */
+  text-align: left;
+}
+
+.candidate-size {
+  color: #4d7855;
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-family: inherit;
+  background: rgba(117, 86, 50, 0.12);
+  color: #44382c;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: rgba(117, 86, 50, 0.2);
+}
+
+.btn.primary {
+  background: #9a6e3d;
+  color: #fffaf0;
+}
+
+.btn.primary:hover {
+  background: #83582e;
+}
+
+/* 초기 진입점은 원형으로 강조하되, 다른 행동 버튼은 기존 크기를 유지한다. */
+.scan-button {
+  align-self: center;
+  width: 98px;
+  height: 98px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: normal;
+  /* 서 있는 토끼의 눈높이와 버튼 중심을 맞춘다. */
+  transform: translateY(36px);
+  box-shadow: 0 6px 14px rgba(98, 65, 33, 0.24);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.scan-button:hover {
+  transform: translateY(34px);
+  box-shadow: 0 9px 18px rgba(98, 65, 33, 0.28);
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(117, 86, 50, 0.14);
+  overflow: hidden;
+  max-width: 260px;
+  margin: 10px auto 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #b68246, #6f9c62);
+  transition: width 0.15s ease-out;
+}
+
+.progress-label {
+  margin: 4px 0;
+  font-size: 12px;
+  color: #725d47;
+}
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  margin: 10px auto;
+  border-radius: 50%;
+  border: 3px solid rgba(117, 86, 50, 0.16);
+  border-top-color: #9a6e3d;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.outcome-success .panel-title {
+  color: #8fe098;
+}
+
+.outcome-warning .panel-title {
+  color: #f0cd6e;
+}
+
+.outcome-error .panel-title {
+  color: #f0a0a0;
+}
+
+/* ── 캐릭터 ────────────────────────────────────────────────── */
+#character-slot {
+  position: relative;
+  flex: 0 0 auto;
+  width: 280px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 2; /* 겹칠 때 캐릭터가 카드 위에 오도록 */
+}
+
+/* 캔버스 비율은 MascotView가 팩 매니페스트 기준으로 #mascot-host에 지정한다.
+   숨쉬기 등 모션은 프레임 애니메이션이 담당하므로 CSS 변형을 겹치지 않는다. */
+#character {
+  --mascot-shadow-bottom: 14px;
+  position: relative;
+  width: 248px;
+  margin-bottom: 10px;
+  isolation: isolate;
+}
+
+/* 패널의 지면 그림자와 같은 톤으로 캐릭터 발밑을 고정한다. */
+#character::after {
+  content: "";
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: var(--mascot-shadow-bottom);
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(76, 52, 29, 0.2);
+  filter: blur(7px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 수면 시퀀스는 서 있는 포즈보다 PNG 투명 하단 여백이 약 21px 더 크다.
+   그림자도 같이 올려 몸 아래에 일정하게 붙도록 보정한다. */
+#character[data-state="sleep"] {
+  --mascot-shadow-bottom: 35px;
+}
+
+/* 점프·회전 중에는 몸이 지면에서 뜨므로 그림자도 작고 옅어졌다가 착지하며
+   원래 크기로 복귀한다. 회전 방향으로 살짝 이동해 정지 포즈와 구분한다. */
+#character[data-mascot-state="03_panel_open_jump_turn_left_spatial_clean"]::after {
+  animation: mascot-ground-shadow-jump 0.72s cubic-bezier(0.22, 0.8, 0.3, 1) both;
+}
+
+@keyframes mascot-ground-shadow-jump {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: translateX(0) scaleX(1) scaleY(1);
+  }
+  45% {
+    opacity: 0.38;
+    transform: translateX(12px) scaleX(0.55) scaleY(0.65);
+  }
+  76% {
+    opacity: 0.62;
+    transform: translateX(5px) scaleX(0.78) scaleY(0.82);
+  }
+}
+
+/* 창을 꺼낼 때는 토끼의 중심과 높이가 프레임마다 달라진다. 그림자도
+   당기는 방향으로 이동·팽창했다가 마지막 자세에서 작고 옅어지게 한다. */
+#character[data-mascot-state="03_to_04_pull_window_from_subspace"]::after {
+  animation: mascot-ground-shadow-pull 1.02s ease-in-out both;
+}
+
+@keyframes mascot-ground-shadow-pull {
+  0% {
+    opacity: 0.9;
+    transform: translateX(0) scaleX(1) scaleY(1);
+  }
+  22% {
+    opacity: 0.78;
+    transform: translateX(-12px) scaleX(0.82) scaleY(0.9);
+  }
+  54% {
+    opacity: 0.86;
+    transform: translateX(-4px) scaleX(1.06) scaleY(0.96);
+  }
+  78%,
+  100% {
+    opacity: 0.58;
+    transform: translateX(7px) scaleX(0.76) scaleY(0.78);
+  }
+}
+
+#mascot-host {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+
+/* 상태 전환 잔상: 이전 프레임을 160ms 동안 페이드 아웃해 포즈 점프를 완충 */
+.mascot-fade {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: contain;
+  pointer-events: none;
+  animation: mascot-fade-out 0.16s ease-out forwards;
+}
+
+@keyframes mascot-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+#mascot-host img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+}
+
+/* Zzz 말풍선: 수면 상태에서만 표시 */
+#zzz {
+  position: absolute;
+  top: 6px;
+  right: 14px;
+  font-weight: 700;
+  color: #7f9bd1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  opacity: 0;
+}
+
+#character[data-state="sleep"] #zzz {
+  opacity: 1;
+}
+
+#zzz span {
+  display: inline-block;
+  animation: zzz-float 2.4s ease-in infinite;
+}
+
+#zzz span:nth-child(1) {
+  font-size: 14px;
+  animation-delay: 0s;
+}
+
+#zzz span:nth-child(2) {
+  font-size: 20px;
+  animation-delay: 0.8s;
+}
+
+#zzz span:nth-child(3) {
+  font-size: 12px;
+  animation-delay: 1.6s;
+}
+
+@keyframes zzz-float {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(10px, -26px);
+    opacity: 0;
+  }
+}
+
+/* 우클릭 종료·잠자기 버튼 */
+#quit-btn,
+#sleep-btn {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(30, 30, 30, 0.85);
+  color: #fff;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  z-index: 5;
+}
+
+#quit-btn {
+  top: 8px;
+}
+
+#sleep-btn {
+  top: 42px;
+}
+
+#quit-btn:hover {
+  background: rgba(200, 40, 40, 0.9);
+}
+
+#sleep-btn:hover {
+  background: rgba(71, 107, 181, 0.9);
+}
